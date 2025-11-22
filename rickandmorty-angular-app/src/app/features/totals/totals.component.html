@@ -1,0 +1,29 @@
+<div class="mt-6">
+    <app-card>
+        <h3 class="text-lg font-bold text-gray-800 dark:text-white mb-4">Page Statistics</h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Species Count -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">By Species</h4>
+                <ul class="space-y-1">
+                    <li *ngFor="let item of speciesCount$ | async | keyvalue" class="flex justify-between text-sm">
+                        <span class="text-gray-700 dark:text-gray-300">{{ item.key }}</span>
+                        <span class="font-bold text-blue-600 dark:text-blue-400">{{ item.value }}</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Type Count -->
+            <div>
+                <h4 class="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase mb-2">By Type</h4>
+                <ul class="space-y-1">
+                    <li *ngFor="let item of typeCount$ | async | keyvalue" class="flex justify-between text-sm">
+                        <span class="text-gray-700 dark:text-gray-300">{{ item.key || 'Unknown/None' }}</span>
+                        <span class="font-bold text-purple-600 dark:text-purple-400">{{ item.value }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </app-card>
+</div>
