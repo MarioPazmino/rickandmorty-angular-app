@@ -1,0 +1,148 @@
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { Observable, Subject, takeUntil, switchMap, of, catchError, tap } from 'rxjs';
+import { Character } from '../../core/models/character.model';
+import { CharacterFullDetails, CharacterRepository } from '../../core/repositories/character.repository';
+import { selectSelectedCharacter } from '../../state/characters/character.selectors';
+import { CharacterContextService } from '../../core/services/character-context.service';
+
+@Component({
+    selector: 'app-character-detail',
+    standalone: true,
+    imports: [CommonModule],
+    template: `
+    <div *ngIf="character$ | async as char" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors duration-300 h-full overflow-y-auto">
+      <div class="flex flex-col items-center mb-6">
+        <img [src]="char.image" [alt]="char.name" class="w-32 h-32 rounded-full border-4 border-blue-500 shadow-md mb-4">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white text-center">{{ char.name }}</h2>
+        <span [ngClass]="{
+          'bg-green-100 text-green-800': char.status === 'Alive',
+          'bg-red-100 text-red-800': char.status === 'Dead',
+          'bg-gray-100 text-gray-800': char.status === 'unknown'
+        }" class="px-3 py-1 rounded-full text-sm font-semibold mt-2">
+          {{ char.status }} - {{ char.species }}
+        </span>
+      </div>
+
+      <div *ngIf="loadingDetails" class="flex justify-center py-4">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+
+      <div *ngIf="details && !loadingDetails" class="space-y-6 animate-fade-in">
+        <!-- Origin -->
+        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2 border-b border-gray-200 dark:border-gray-600 pb-1">Origin</h3>
+          <div *ngIf="details.origin; else noOrigin">
+            <p class="text-gray-600 dark:text-gray-300"><span class="font-medium">Name:</span> {{ details.origin.name }}</p>
+            <p class="text-gray-600 dark:text-gray-300"><span class="font-medium">Dimension:</span> {{ details.origin.dimension || 'Unknown' }}</p>
+            
+            <div *ngIf="details.origin.residents && details.origin.residents.length > 0" class="mt-3">
+              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold mb-1">Resident:</p>
+              <div class="flex items-center space-x-2">
+                <img [src]="details.origin.residents[0].image" class="w-8 h-8 rounded-full">
+                <span class="text-sm text-gray-700 dark:text-gray-200">{{ details.origin.residents[0].name }}</span>
+              </div>
+            </div>
+            <div *ngIf="!details.origin.residents || details.origin.residents.length === 0" class="mt-2 text-sm text-gray-500 italic">
+              No residents found.
+            </div>
+          </div>
+          <ng-template #noOrigin>
+            <p class="text-gray-500 italic">Unknown origin</p>
+          </ng-template>
+        </div>
+
+        <!-- Location -->
+        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2 border-b border-gray-200 dark:border-gray-600 pb-1">Location</h3>
+          <div *ngIf="details.location; else noLocation">
+            <p class="text-gray-600 dark:text-gray-300"><span class="font-medium">Name:</span> {{ details.location.name }}</p>
+            <p class="text-gray-600 dark:text-gray-300"><span class="font-medium">Dimension:</span> {{ details.location.dimension || 'Unknown' }}</p>
+             <div *ngIf="details.location.residents && details.location.residents.length > 0" class="mt-3">
+              <p class="text-xs text-gray-500 dark:text-gray-400 uppercase font-bold mb-1">Resident:</p>
+              <div class="flex items-center space-x-2">
+                <img [src]="details.location.residents[0].image" class="w-8 h-8 rounded-full">
+                <span class="text-sm text-gray-700 dark:text-gray-200">{{ details.location.residents[0].name }}</span>
+              </div>
+            </div>
+             <div *ngIf="!details.location.residents || details.location.residents.length === 0" class="mt-2 text-sm text-gray-500 italic">
+              No residents found.
+            </div>
+          </div>
+          <ng-template #noLocation>
+            <p class="text-gray-500 italic">Unknown location</p>
+          </ng-template>
+        </div>
+
+        <!-- Episode -->
+        <div class="bg-gray-50 dark:bg-gray-700 p-4 rounded-lg">
+          <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-2 border-b border-gray-200 dark:border-gray-600 pb-1">First Episode</h3>
+          <div *ngIf="details.episode; else noEpisode">
+            <p class="text-gray-600 dark:text-gray-300"><span class="font-medium">Name:</span> {{ details.episode.name }}</p>
+            <p class="text-gray-600 dark:text-gray-300"><span class="font-medium">Code:</span> {{ details.episode.episode }}</p>
+            <p class="text-gray-600 dark:text-gray-300"><span class="font-medium">Air Date:</span> {{ details.episode.air_date }}</p>
+          </div>
+           <ng-template #noEpisode>
+            <p class="text-gray-500 italic">No episode info</p>
+          </ng-template>
+        </div>
+      </div>
+    </div>
+    
+    <div *ngIf="!(character$ | async)" class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+      <p>Select a character to see details</p>
+    </div>
+  `,
+    styles: [`
+    .animate-fade-in {
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `]
+})
+export class CharacterDetailComponent implements OnInit, OnDestroy {
+    character$: Observable<Character | null>;
+    details: CharacterFullDetails | null = null;
+    loadingDetails = false;
+    private destroy$ = new Subject<void>();
+
+    constructor(
+        private store: Store,
+        private contextService: CharacterContextService
+    ) {
+        this.character$ = this.store.select(selectSelectedCharacter);
+    }
+
+    ngOnInit() {
+        this.character$.pipe(
+            takeUntil(this.destroy$),
+            tap(() => {
+                this.details = null;
+                this.loadingDetails = true;
+            }),
+            switchMap(char => {
+                if (!char) return of(null);
+                // Get the current repository from the context service
+                // This ensures we use the selected strategy (REST or GraphQL)
+                return this.contextService.getRepository().getDetails(char).pipe(
+                    catchError(err => {
+                        console.error('Error loading details', err);
+                        return of(null);
+                    })
+                );
+            })
+        ).subscribe(details => {
+            this.details = details;
+            this.loadingDetails = false;
+        });
+    }
+
+    ngOnDestroy() {
+        this.destroy$.next();
+        this.destroy$.complete();
+    }
+}
