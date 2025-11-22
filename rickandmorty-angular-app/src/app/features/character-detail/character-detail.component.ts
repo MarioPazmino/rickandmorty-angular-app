@@ -6,23 +6,21 @@ import { Character } from '../../core/models/character.model';
 import { CharacterFullDetails, CharacterRepository } from '../../core/repositories/character.repository';
 import { selectSelectedCharacter } from '../../state/characters/character.selectors';
 import { CharacterContextService } from '../../core/services/character-context.service';
+import { CardComponent } from '../../shared/components/ui/card.component';
+import { StatusBadgeComponent } from '../../shared/components/ui/status-badge.component';
 
 @Component({
-    selector: 'app-character-detail',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
-    <div *ngIf="character$ | async as char" class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors duration-300 h-full overflow-y-auto">
+  selector: 'app-character-detail',
+  standalone: true,
+  imports: [CommonModule, CardComponent, StatusBadgeComponent],
+  template: `
+    <app-card *ngIf="character$ | async as char; else noSelection">
       <div class="flex flex-col items-center mb-6">
         <img [src]="char.image" [alt]="char.name" class="w-32 h-32 rounded-full border-4 border-blue-500 shadow-md mb-4">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white text-center">{{ char.name }}</h2>
-        <span [ngClass]="{
-          'bg-green-100 text-green-800': char.status === 'Alive',
-          'bg-red-100 text-red-800': char.status === 'Dead',
-          'bg-gray-100 text-gray-800': char.status === 'unknown'
-        }" class="px-3 py-1 rounded-full text-sm font-semibold mt-2">
-          {{ char.status }} - {{ char.species }}
-        </span>
+        <div class="mt-2">
+           <app-status-badge [status]="char.status">{{ char.status }} - {{ char.species }}</app-status-badge>
+        </div>
       </div>
 
       <div *ngIf="loadingDetails" class="flex justify-center py-4">
@@ -88,13 +86,17 @@ import { CharacterContextService } from '../../core/services/character-context.s
           </ng-template>
         </div>
       </div>
-    </div>
+    </app-card>
     
-    <div *ngIf="!(character$ | async)" class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
-      <p>Select a character to see details</p>
-    </div>
+    <ng-template #noSelection>
+      <app-card>
+        <div class="flex items-center justify-center h-full text-gray-500 dark:text-gray-400">
+          <p>Select a character to see details</p>
+        </div>
+      </app-card>
+    </ng-template>
   `,
-    styles: [`
+  styles: [`
     .animate-fade-in {
       animation: fadeIn 0.5s ease-in-out;
     }
@@ -105,44 +107,42 @@ import { CharacterContextService } from '../../core/services/character-context.s
   `]
 })
 export class CharacterDetailComponent implements OnInit, OnDestroy {
-    character$: Observable<Character | null>;
-    details: CharacterFullDetails | null = null;
-    loadingDetails = false;
-    private destroy$ = new Subject<void>();
+  character$: Observable<Character | null>;
+  details: CharacterFullDetails | null = null;
+  loadingDetails = false;
+  private destroy$ = new Subject<void>();
 
-    constructor(
-        private store: Store,
-        private contextService: CharacterContextService
-    ) {
-        this.character$ = this.store.select(selectSelectedCharacter);
-    }
+  constructor(
+    private store: Store,
+    private contextService: CharacterContextService
+  ) {
+    this.character$ = this.store.select(selectSelectedCharacter);
+  }
 
-    ngOnInit() {
-        this.character$.pipe(
-            takeUntil(this.destroy$),
-            tap(() => {
-                this.details = null;
-                this.loadingDetails = true;
-            }),
-            switchMap(char => {
-                if (!char) return of(null);
-                // Get the current repository from the context service
-                // This ensures we use the selected strategy (REST or GraphQL)
-                return this.contextService.getRepository().getDetails(char).pipe(
-                    catchError(err => {
-                        console.error('Error loading details', err);
-                        return of(null);
-                    })
-                );
-            })
-        ).subscribe(details => {
-            this.details = details;
-            this.loadingDetails = false;
-        });
-    }
+  ngOnInit() {
+    this.character$.pipe(
+      takeUntil(this.destroy$),
+      tap(() => {
+        this.details = null;
+        this.loadingDetails = true;
+      }),
+      switchMap(char => {
+        if (!char) return of(null);
+        return this.contextService.getRepository().getDetails(char).pipe(
+          catchError(err => {
+            console.error('Error loading details', err);
+            return of(null);
+          })
+        );
+      })
+    ).subscribe(details => {
+      this.details = details;
+      this.loadingDetails = false;
+    });
+  }
 
-    ngOnDestroy() {
-        this.destroy$.next();
-        this.destroy$.complete();
-    }
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 }

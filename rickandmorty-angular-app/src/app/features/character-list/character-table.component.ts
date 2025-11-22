@@ -6,11 +6,12 @@ import { Observable, debounceTime, distinctUntilChanged } from 'rxjs';
 import { Character, CharacterFilter } from '../../core/models/character.model';
 import { loadCharacters, selectCharacter, toggleFavorite } from '../../state/characters/character.actions';
 import { selectAllCharacters, selectLoading, selectFavorites, selectCharacterInfo } from '../../state/characters/character.selectors';
+import { StatusBadgeComponent } from '../../shared/components/ui/status-badge.component';
 
 @Component({
   selector: 'app-character-table',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, StatusBadgeComponent],
   template: `
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 transition-colors duration-300">
       <!-- Filters -->
@@ -80,13 +81,7 @@ import { selectAllCharacters, selectLoading, selectFavorites, selectCharacterInf
                 </div>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span [ngClass]="{
-                  'bg-green-100 text-green-800': char.status === 'Alive',
-                  'bg-red-100 text-red-800': char.status === 'Dead',
-                  'bg-gray-100 text-gray-800': char.status === 'unknown'
-                }" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-                  {{ char.status }}
-                </span>
+                <app-status-badge [status]="char.status">{{ char.status }}</app-status-badge>
               </td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ char.species }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">{{ char.type || '-' }}</td>
