@@ -7,7 +7,7 @@ export class ThemeService {
     darkMode = signal<boolean>(false);
 
     constructor() {
-        // Check system preference or local storage
+
         const isDark = localStorage.getItem('theme') === 'dark' ||
             (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
@@ -17,7 +17,7 @@ export class ThemeService {
             const isDark = this.darkMode();
             console.log('Theme changed:', isDark ? 'Dark' : 'Light');
 
-            // Disable transitions temporarily to prevent flashing/inconsistency
+
             const style = document.createElement('style');
             style.innerHTML = '* { transition: none !important; }';
             document.head.appendChild(style);
@@ -30,10 +30,10 @@ export class ThemeService {
                 localStorage.setItem('theme', 'light');
             }
 
-            // Force reflow/repaint
+
             const _ = window.getComputedStyle(document.documentElement).opacity;
 
-            // Re-enable transitions after a small delay
+
             setTimeout(() => {
                 document.head.removeChild(style);
             }, 50);

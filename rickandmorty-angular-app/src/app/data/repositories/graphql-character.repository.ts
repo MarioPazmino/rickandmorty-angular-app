@@ -175,14 +175,6 @@ export class GraphqlCharacterRepository extends CharacterRepository {
     }).pipe(
       map(result => {
         const char = result.data.character;
-        // We need to take just one resident/episode as per requirement or structure
-        // But the interface allows array.
-        // However, the GQL returns ALL residents. We might want to slice them in UI or here.
-        // Let's return as is, but we need to match the interface.
-
-        // Note: episode in GQL returns ALL episodes the character is in.
-        // The requirement says "Obtain information of a SINGLE episode".
-        // We can just take the first one from the list.
 
         const firstEpisode = char.episode && char.episode.length > 0 ? char.episode[0] : null;
 

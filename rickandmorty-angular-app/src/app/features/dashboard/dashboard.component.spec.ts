@@ -76,14 +76,12 @@ describe('DashboardComponent', () => {
         const compiled = fixture.nativeElement as HTMLElement;
         const button = compiled.querySelector('button[title="Toggle Theme"]') as HTMLButtonElement;
 
-        // Initial state (mock is false/light)
+
         expect(themeService.darkMode()).toBe(false);
 
-        // Click button
         button.click();
         fixture.detectChanges();
 
-        // Should have toggled
         expect(themeService.darkMode()).toBe(true);
     });
 });
