@@ -4,6 +4,7 @@ import { ApiToggleComponent } from '../../shared/components/api-toggle/api-toggl
 import { CharacterTableComponent } from '../character-list/character-table.component';
 import { CharacterDetailComponent } from '../character-detail/character-detail.component';
 import { TotalsComponent } from '../totals/totals.component';
+import { FavoritesComponent } from '../favorites/favorites.component';
 import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
@@ -14,7 +15,8 @@ import { ThemeService } from '../../core/services/theme.service';
     ApiToggleComponent,
     CharacterTableComponent,
     CharacterDetailComponent,
-    TotalsComponent
+    TotalsComponent,
+    FavoritesComponent
   ],
   templateUrl: './dashboard.component.html'
 })

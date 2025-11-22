@@ -1,0 +1,13 @@
+<div *ngIf="(favoriteCharacters$ | async)?.length ?? 0 > 0"
+    class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-yellow-500 p-4 mb-4 rounded-r-lg">
+    <div class="flex items-center mb-2">
+        <span class="text-yellow-600 dark:text-yellow-400 text-xl mr-2">★</span>
+        <h3 class="text-sm font-bold text-yellow-800 dark:text-yellow-300 uppercase">Favoritos</h3>
+    </div>
+    <div class="flex flex-wrap gap-2">
+        <button *ngFor="let char of favoriteCharacters$ | async" (click)="selectFavorite(char)"
+            class="px-3 py-1 bg-yellow-100 dark:bg-yellow-800 text-yellow-800 dark:text-yellow-100 rounded-full text-sm font-medium hover:bg-yellow-200 dark:hover:bg-yellow-700 transition-colors cursor-pointer border border-yellow-300 dark:border-yellow-600">
+            {{ char.name }}
+        </button>
+    </div>
+</div>

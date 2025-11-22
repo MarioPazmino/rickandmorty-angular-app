@@ -8,11 +8,12 @@ import { selectSelectedCharacter } from '../../state/characters/character.select
 import { CharacterContextService } from '../../core/services/character-context.service';
 import { CardComponent } from '../../shared/components/ui/card.component';
 import { StatusBadgeComponent } from '../../shared/components/ui/status-badge.component';
+import { SkeletonComponent } from '../../shared/components/ui/skeleton.component';
 
 @Component({
   selector: 'app-character-detail',
   standalone: true,
-  imports: [CommonModule, CardComponent, StatusBadgeComponent],
+  imports: [CommonModule, CardComponent, StatusBadgeComponent, SkeletonComponent],
   templateUrl: './character-detail.component.html',
   styleUrls: ['./character-detail.component.css']
 })

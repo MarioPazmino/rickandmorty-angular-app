@@ -28,9 +28,7 @@
     </form>
 
     <!-- Loading State -->
-    <div *ngIf="loading$ | async" class="flex justify-center py-8">
-        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-    </div>
+    <app-skeleton *ngIf="loading$ | async" type="table" [count]="5"></app-skeleton>
 
     <!-- Table -->
     <div class="overflow-x-auto" *ngIf="!(loading$ | async)">

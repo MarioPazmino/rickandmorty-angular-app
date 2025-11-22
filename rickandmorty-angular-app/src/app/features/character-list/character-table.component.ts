@@ -7,11 +7,12 @@ import { Character, CharacterFilter } from '../../core/models/character.model';
 import { loadCharacters, selectCharacter, toggleFavorite } from '../../state/characters/character.actions';
 import { selectAllCharacters, selectLoading, selectFavorites, selectCharacterInfo } from '../../state/characters/character.selectors';
 import { StatusBadgeComponent } from '../../shared/components/ui/status-badge.component';
+import { SkeletonComponent } from '../../shared/components/ui/skeleton.component';
 
 @Component({
   selector: 'app-character-table',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, StatusBadgeComponent],
+  imports: [CommonModule, ReactiveFormsModule, StatusBadgeComponent, SkeletonComponent],
   templateUrl: './character-table.component.html'
 })
 export class CharacterTableComponent implements OnInit {
