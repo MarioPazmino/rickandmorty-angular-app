@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { provideMockActions } from '@ngrx/effects/testing';
+import { provideMockStore } from '@ngrx/store/testing';
 import { Observable, of, throwError, firstValueFrom } from 'rxjs';
 import { CharacterEffects } from './character.effects';
 import { CharacterContextService } from '../../core/services/character-context.service';
@@ -28,6 +29,7 @@ describe('CharacterEffects', () => {
             providers: [
                 CharacterEffects,
                 provideMockActions(() => actions$),
+                provideMockStore({ initialState: {} }),
                 { provide: CharacterContextService, useValue: contextServiceMock }
             ]
         });
@@ -44,7 +46,7 @@ describe('CharacterEffects', () => {
         actions$ = of(action);
 
         const result = await firstValueFrom(effects.loadCharacters$);
-        expect(result.type).toBe('[Character] Load Characters Success');
+        expect(result.type).toBe('[Character List] Load Characters Success');
     });
 
     it('should return loadCharactersFailure on error', async () => {
@@ -56,6 +58,6 @@ describe('CharacterEffects', () => {
         actions$ = of(action);
 
         const result = await firstValueFrom(effects.loadCharacters$);
-        expect(result.type).toBe('[Character] Load Characters Failure');
+        expect(result.type).toBe('[Character List] Load Characters Failure');
     });
 });
