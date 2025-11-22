@@ -73,7 +73,7 @@ import { StatusBadgeComponent } from '../../shared/components/ui/status-badge.co
             <tr 
               *ngFor="let char of characters$ | async" 
               (click)="select(char)"
-              class="hover:bg-blue-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-150"
+              class="hover:bg-blue-50 dark:hover:bg-gray-700 cursor-pointer transition-colors duration-300"
             >
               <td class="px-6 py-4 whitespace-nowrap">
                 <div class="flex items-center">

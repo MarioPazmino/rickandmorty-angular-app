@@ -14,13 +14,29 @@ export class ThemeService {
         this.darkMode.set(isDark);
 
         effect(() => {
-            if (this.darkMode()) {
+            const isDark = this.darkMode();
+            console.log('Theme changed:', isDark ? 'Dark' : 'Light');
+
+            // Disable transitions temporarily to prevent flashing/inconsistency
+            const style = document.createElement('style');
+            style.innerHTML = '* { transition: none !important; }';
+            document.head.appendChild(style);
+
+            if (isDark) {
                 document.documentElement.classList.add('dark');
                 localStorage.setItem('theme', 'dark');
             } else {
                 document.documentElement.classList.remove('dark');
                 localStorage.setItem('theme', 'light');
             }
+
+            // Force reflow/repaint
+            const _ = window.getComputedStyle(document.documentElement).opacity;
+
+            // Re-enable transitions after a small delay
+            setTimeout(() => {
+                document.head.removeChild(style);
+            }, 50);
         });
     }
 
